@@ -8,13 +8,13 @@ MODULE_DESCRIPTION("Simple hello world program.");
 
 static int __init hello_init(void)
 {
-	printk(KERN_DEBUG "Hello World!");
+	printk(KERN_DEBUG "Hello World!\n");
 	return 0;  /* non-zero return indicates an error */
 }
 
 static void __exit hello_exit(void)
 {
-	printk(KERN_DEBUG "Goodbye World!");
+	printk(KERN_DEBUG "Goodbye World!\n");
 }
 
 module_init(hello_init);
