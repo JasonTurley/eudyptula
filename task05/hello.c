@@ -9,15 +9,23 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/usb.h>
+#include <linux/hid.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Jason Turley");
-MODULE_DESCRIPTION("Prints messages when a USB keyboard is plugged in and
-removed.");
+MODULE_DESCRIPTION("USB keyboard hello world module.");
 
 /* Table of devices that work with this driver */
 static struct usb_device_id hello_table [] = {
-	// TODO: add usb devices w/ USB_DEVICE()
+	/*
+	 * USB_INTERFACE_INFO(class, subclass, protocol)
+	 */
+	{ USB_INTERFACE_INFO(
+		USB_INTERFACE_CLASS_HID, 
+		USB_INTERFACE_SUBCLASS_BOOT,
+		USB_INTERFACE_PROTOCOL_KEYBOARD) 
+	},
+
 	{ }	/* Terminating entry */	
 };
 
@@ -25,13 +33,6 @@ static struct usb_device_id hello_table [] = {
  * driver can control */
 MODULE_DEVICE_TABLE (usb, hello_table);
 
-/* Main USB structure */
-static struct usb_driver hello_driver {
-	.name = "hello usb",
-	.id_table = hello_table,
-	.prob = hello_probe,
-	.disconnect = hello_disconnect,
-};
 
 /**
  * Called by the USB core when it thinks it found a struct usb_interface that
@@ -42,7 +43,7 @@ static struct usb_driver hello_driver {
 static int hello_probe(struct usb_interface *intf, 
 	const struct usb_device_id *id)
 {
-	pr_debug("Hello USB connected... hello there!")	
+	pr_debug("Hello USB connected... hello there!\n");
 	return 0;
 }
 
@@ -54,26 +55,39 @@ static int hello_probe(struct usb_interface *intf,
  */
 static void hello_disconnect(struct usb_interface *intf)
 {
-	pr_debug("Hello USB disconnected... goodbye!")
+	pr_debug("Hello USB disconnected... goodbye!\n");
 }
+
+/* Main USB structure */
+static struct usb_driver hello_driver = {
+	.name = "hello_usb",
+	.id_table = hello_table,
+	.probe = hello_probe,
+	.disconnect = hello_disconnect,
+};
 
 static int __init hello_init(void)
 {
 	int result;
 
+	pr_debug("Hello World!\n");
+
 	/* register the driver with the USB subsystem */
 	result = usb_register(&hello_driver);
 	if (result)
-		pr_debug("usb_register failed. Error number %d", result);
+		pr_debug("usb_register failed. Error number %d\n", result);
 
 	return result;
 }
 
 static void __exit hello_exit(void)
 {
+	pr_debug("Goodbye World!\n");
+
 	/* deregister the driver from the USB subsystem */
 	usb_deregister(&hello_driver);
 }
+
 
 module_init(hello_init);
 module_exit(hello_exit);
